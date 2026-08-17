@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Calculator</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
+      overflow: hidden;
+    }
+
+    /* Background animation */
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      animation: float 8s infinite alternate ease-in-out;
+    }
+
+    body::before {
+      background: #8b5cf6;
+      top: -100px;
+      left: -100px;
+    }
+
+    body::after {
+      background: #06b6d4;
+      bottom: -100px;
+      right: -100px;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        transform: translate(80px, 50px) scale(1.2);
+      }
+    }
+
+    .calculator {
+      position: relative;
+      width: 360px;
+      padding: 22px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      animation: calculatorIn 0.7s ease;
+    }
+
+    @keyframes calculatorIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .title {
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-size: 14px;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .display {
+      height: 120px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    #display {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: white;
+      font-size: 42px;
+      font-weight: 500;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .display.animate {
+      animation: displayPop 0.18s ease;
+    }
+
+    @keyframes displayPop {
+      0% {
+        transform: scale(0.96);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      height: 65px;
+      border: none;
+      border-radius: 18px;
+      color: white;
+      font-size: 20px;
+      font-weight: 500;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.08);
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    button:active {
+      transform: scale(0.90);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .operator {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    }
+
+    .operator:hover {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    }
+
+    .special {
+      color: #c4b5fd;
+      background: rgba(124, 58, 237, 0.18);
+    }
+
+    .equals {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+    }
+
+    .equals:hover {
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+    }
+
+    .zero {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 400px) {
+      .calculator {
+        width: 92%;
+        padding: 18px;
+      }
+
+      button {
+        height: 60px;
+      }
+
+      #display {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="calculator">
+
+    <div class="title">Calculator</div>
+
+    <div class="display">
+      <input type="text" id="display" value="0" readonly>
+    </div>
+
+    <div class="buttons">
+
+      <button class="special" onclick="clearDisplay()">AC</button>
+      <button class="special" onclick="deleteLast()">⌫</button>
+      <button class="special" onclick="percentage()">%</button>
+      <button class="operator" onclick="chooseOperator('/')">÷</button>
+
+      <button onclick="appendNumber('7')">7</button>
+      <button onclick="appendNumber('8')">8</button>
+      <button onclick="appendNumber('9')">9</button>
+      <button class="operator" onclick="chooseOperator('*')">×</button>
+
+      <button onclick="appendNumber('4')">4</button>
+      <button onclick="appendNumber('5')">5</button>
+      <button onclick="appendNumber('6')">6</button>
+      <button class="operator" onclick="chooseOperator('-')">−</button>
+
+      <button onclick="appendNumber('1')">1</button>
+      <button onclick="appendNumber('2')">2</button>
+      <button onclick="appendNumber('3')">3</button>
+      <button class="operator" onclick="chooseOperator('+')">+</button>
+
+      <button class="zero" onclick="appendNumber('0')">0</button>
+      <button onclick="appendNumber('.')">.</button>
+      <button class="equals" onclick="calculate()">=</button>
+
+    </div>
+  </div>
+
+ <script>
+  const display = document.getElementById("display");
+
+  let currentInput = "0";
+  let previousInput = null;
+  let operator = null;
+  let waitingForNewNumber = false;
+
+  function updateDisplay() {
+    display.value = currentInput;
+
+    display.classList.remove("animate");
+    void display.offsetWidth;
+    display.classList.add("animate");
+  }
+
+  // Add number
+  function appendNumber(number) {
+
+    if (currentInput === "Error") {
+      clearDisplay();
+    }
+
+    if (waitingForNewNumber) {
+      currentInput = number;
+      waitingForNewNumber = false;
+    }
+
+    else if (number === "." && currentInput.includes(".")) {
+      return;
+    }
+
+    else if (currentInput === "0" && number !== ".") {
+      currentInput = number;
+    }
+
+    else {
+      currentInput += number;
+    }
+
+    updateDisplay();
+  }
+
+  // Select operator
+  function chooseOperator(selectedOperator) {
+
+    // If an operator already exists and the user has
+    // entered another number, calculate first.
+    if (operator !== null && !waitingForNewNumber) {
+      calculate();
+    }
+
+    previousInput = parseFloat(currentInput);
+    operator = selectedOperator;
+    waitingForNewNumber = true;
+  }
+
+  // Calculate result
+  function calculate() {
+
+    // IMPORTANT:
+    // We only need previousInput + operator.
+    // waitingForNewNumber can be true here because
+    // that means the user has pressed an operator.
+    if (previousInput === null || operator === null) {
+      return;
+    }
+
+    const secondNumber = parseFloat(currentInput);
+
+    if (isNaN(secondNumber)) {
+      return;
+    }
+
+    let result;
+
+    switch (operator) {
+
+      case "+":
+        result = previousInput + secondNumber;
+        break;
+
+      case "-":
+        result = previousInput - secondNumber;
+        break;
+
+      case "*":
+        result = previousInput * secondNumber;
+        break;
+
+      case "/":
+
+        if (secondNumber === 0) {
+          currentInput = "Error";
+          previousInput = null;
+          operator = null;
+          waitingForNewNumber = true;
+
+          updateDisplay();
+
+          setTimeout(() => {
+            clearDisplay();
+          }, 1200);
+
+          return;
+        }
+
+        result = previousInput / secondNumber;
+        break;
+
+      default:
+        return;
+    }
+
+    // Remove floating point errors
+    result = Math.round(
+      (result + Number.EPSILON) * 100000000
+    ) / 100000000;
+
+    currentInput = String(result);
+
+    previousInput = null;
+    operator = null;
+    waitingForNewNumber = true;
+
+    updateDisplay();
+  }
+
+  // Clear
+  function clearDisplay() {
+    currentInput = "0";
+    previousInput = null;
+    operator = null;
+    waitingForNewNumber = false;
+
+    updateDisplay();
+  }
+
+  // Delete last digit
+  function deleteLast() {
+
+    if (currentInput === "Error") {
+      clearDisplay();
+      return;
+    }
+
+    if (waitingForNewNumber) {
+      return;
+    }
+
+    if (currentInput.length <= 1) {
+      currentInput = "0";
+    } else {
+      currentInput = currentInput.slice(0, -1);
+    }
+
+    updateDisplay();
+  }
+
+  // Percentage
+  function percentage() {
+
+    if (currentInput === "Error") {
+      clearDisplay();
+      return;
+    }
+
+    currentInput = String(
+      parseFloat(currentInput) / 100
+    );
+
+    updateDisplay();
+  }
+
+  // Keyboard support
+  document.addEventListener("keydown", function(event) {
+
+    const key = event.key;
+
+    if (key >= "0" && key <= "9") {
+      appendNumber(key);
+    }
+
+    else if (key === ".") {
+      appendNumber(".");
+    }
+
+    else if (key === "+") {
+      chooseOperator("+");
+    }
+
+    else if (key === "-") {
+      chooseOperator("-");
+    }
+
+    else if (key === "*") {
+      chooseOperator("*");
+    }
+
+    else if (key === "/") {
+      event.preventDefault();
+      chooseOperator("/");
+    }
+
+    else if (key === "%") {
+      percentage();
+    }
+
+    else if (key === "Enter" || key === "=") {
+      calculate();
+    }
+
+    else if (key === "Backspace") {
+      deleteLast();
+    }
+
+    else if (key === "Escape") {
+      clearDisplay();
+    }
+  });
+</script>
+
+</body>
+</html>
